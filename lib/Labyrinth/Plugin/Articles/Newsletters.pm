@@ -36,7 +36,7 @@ my $LEVEL2      = ADMIN;
 
 # sectionid is used to reference different types of articles,
 # however, the default is also a standard article.
-my $SECTIONID   = 12;
+my $NEWSLETTERS = 12;
 
 # type: 0 = optional, 1 = mandatory
 # html: 0 = none, 1 = text, 2 = textarea
@@ -120,7 +120,7 @@ Last part of the unsubscription process.
 =cut
 
 sub Section {
-    $cgiparams{sectionid} = $SECTIONID;
+    $cgiparams{sectionid} = $NEWSLETTERS;
 }
 
 sub Subscribe {
