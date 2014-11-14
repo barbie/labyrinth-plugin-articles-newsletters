@@ -211,26 +211,39 @@ sub UnSubscribe {
 =cut
 
 sub AdminSubscription {
+    my $self = shift;
+
     return  unless AccessUser($LEVEL);
 
+    if($cgiparams{doaction}) {
+        $self->DeleteSubscription() if($cgiparams{doaction} eq 'Delete');
+    }
+
     my @emails = $dbi->GetQuery('hash','ListSubscptions');
-    $tvars{emails} = \@emails   if(@emails);
+    $tvars{data} = \@emails   if(@emails);
 }
 
 sub BulkSubscription {
     return  unless AccessUser($LEVEL);
 
     # requires: subscriptions
-    for(keys %code_fields) {
-           if($code_fields{$_}->{html} == 1) { $cgiparams{$_} = CleanHTML($cgiparams{$_}); }
-        elsif($code_fields{$_}->{html} == 2) { $cgiparams{$_} =  SafeHTML($cgiparams{$_}); }
+    for(keys %subs_fields) {
+           if($subs_fields{$_}->{html} == 1) { $cgiparams{$_} = CleanHTML($cgiparams{$_}); }
+        elsif($subs_fields{$_}->{html} == 2) { $cgiparams{$_} =  SafeHTML($cgiparams{$_}); }
     }
 
-    return  if FieldCheck(\@code_all,\@code_man);
+    return  if FieldCheck(\@subs_all,\@subs_man);
     my @subs = split(qr/\s+/,$tvars{data}{subscriptions});
-    for my $sub {@subs) {
+    for my $sub (@subs) {
         my ($name,$email) = split(',',$sub);
-        $dbi->DoQuery('InsertSubscriptionEmail',$name,$email,'');
+
+        # already exists?
+        my @email = $dbi->GetQuery('hash','CheckSubscptionEmail',$email);
+        if(@email) {
+            $dbi->DoQuery('UpdateConfirmedEmail',$name,'',$email[0]->{subscriptionid});
+        } else {
+            $dbi->IDQuery('InsertSubscriptionEmail',$name,$email,'');
+        }
     }
 }
 
@@ -238,7 +251,7 @@ sub DeleteSubscription {
     return  unless AccessUser($LEVEL);
     
     my @ids = CGIArray('LISTED');
-    $dbx->DoQuery('RemoveSubscription',$_)  for(@ids);
+    $dbi->DoQuery('RemoveSubscription',$_)  for(@ids);
 }
 
 sub SendNewsletter {
