@@ -22,6 +22,7 @@ Contains all the article handling functionality for Newsletters.
 use base qw(Labyrinth::Plugin::Articles);
 
 use Labyrinth::Audit;
+use Labyrinth::Mailer;
 use Labyrinth::MLUtils;
 use Labyrinth::Support;
 use Labyrinth::Variables;
@@ -55,6 +56,7 @@ for(keys %fields) {
 my %email_fields = (
     name    => { type => 1, html => 1 },
     email   => { type => 1, html => 1 },
+    resend  => { type => 0, html => 1 },
 );
 
 my (@email_man,@email_all);
@@ -136,29 +138,34 @@ sub Subscribe {
     my @email = $dbi->GetQuery('hash','CheckSubscptionEmail',$tvars{data}{email});
     if(@email && !$tvars{data}{resend}) {
         $tvars{resend} = 1;
-        $tvars{email} = $tvars{data}{email};
+        $tvars{sub}{email} = $tvars{data}{email};
+        $tvars{sub}{name} = $tvars{data}{name};
         return;
     }
 
-    $code = $gen->get();
-    my $userid;
+    my $code = $gen->get();
+    my $subscriptionid;
 
     if(@email) {
-        $userid = $email[0]->{userid};
-        $dbi->DoQuery('UpdateUnConfirmedEmail',$userid,$tvars{data}{email},$code);
+        $subscriptionid = $email[0]->{subscriptionid};
+        $dbi->DoQuery('UpdateUnConfirmedEmail',$tvars{data}{email},$code,$subscriptionid);
     } else {
-        $userid = $dbi->IDQuery('InsertSubscriptionEmail',$tvars{data}{name},$tvars{data}{email},$code);
+        $subscriptionid = $dbi->IDQuery('InsertSubscriptionEmail',$tvars{data}{name},$tvars{data}{email},$code);
     }
 
     MailSend(   template        => '',
                 name            => $tvars{data}{name},
                 recipient_email => $tvars{data}{email},
-                code            => "$code/$userid",
+                code            => "$code/$subscriptionid",
                 webpath         => "$tvars{docroot}$tvars{webpath}",
                 nowrap          => 1
     );
 
-    $tvars{errcode} = 'BADMAIL' if(!MailSent());
+    if(!MailSent()) {
+        $tvars{failure} = 1;
+    } else {
+        $tvars{success} = 1;
+    }
 }
 
 sub Subscribed {
@@ -185,7 +192,7 @@ sub UnSubscribe {
     my @email = $dbi->GetQuery('hash','CheckSubscptionEmail',$cgiparams{email});
     return  unless(@email);
 
-    $dbi->DoQuery('RemoveSubscription',$email[0]->{userid});
+    $dbi->DoQuery('RemoveSubscription',$email[0]->{subscriptionid});
     $tvars{success} = 1;
 }
 
