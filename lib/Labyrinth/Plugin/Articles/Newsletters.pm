@@ -258,7 +258,7 @@ sub SendNewsletter {
     return  unless AccessUser($LEVEL);
     my @users = $dbi->GetQuery('hash','GetSubscribers');
 
-    my ($id,$users) = ($cgiparams{$INDEXKEY},\@users);
+    my ($id,$users) = ($cgiparams{articleid},\@users);
 
     my %opts = (
         html    => 'mailer/newsletter.html',
@@ -270,7 +270,7 @@ sub SendNewsletter {
     $tvars{gotusers} = scalar(@users);
 
     # get newsletter details
-    return  unless AuthorCheck($GETSQL,$INDEXKEY,$LEVEL);
+    return  unless AuthorCheck('GetArticle','articleid',$LEVEL);
 
     $tvars{mailsent} = 0;
 
@@ -296,7 +296,7 @@ sub SendNewsletter {
 #use Data::Dumper;
 #LogDebug("opts=".Dumper(\%opts));
         HTMLSend(%opts);
-        $dbi->DoQuery('InsertNewsletterIndex',$cgiparams{$INDEXKEY},$user->{userid},time());
+        $dbi->DoQuery('InsertNewsletterIndex',$cgiparams{articleid},$user->{userid},time());
 
         # if sent update index
         $tvars{mailsent}++  if(MailSent());
