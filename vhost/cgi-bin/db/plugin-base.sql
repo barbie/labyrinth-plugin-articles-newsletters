@@ -9,4 +9,13 @@ CREATE TABLE `subscriptions` (
   KEY `IXCODE` (`code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+DROP TABLE IF EXISTS `ixsubscriptions`;
+CREATE TABLE `ixsubscriptions` (
+  `articleid`       int(10) unsigned NOT NULL,
+  `subscriptionid`  int(10) unsigned NOT NULL,
+  `datesent`        int(10) unsigned NOT NULL,
+  KEY (`articleid`),
+  KEY (`subscriptionid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 

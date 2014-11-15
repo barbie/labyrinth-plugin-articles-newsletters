@@ -22,11 +22,13 @@ Contains all the article handling functionality for Newsletters.
 use base qw(Labyrinth::Plugin::Articles);
 
 use Labyrinth::Audit;
+use Labyrinth::DTUtils;
 use Labyrinth::Mailer;
 use Labyrinth::MLUtils;
 use Labyrinth::Support;
 use Labyrinth::Variables;
 
+use Encode qw/encode decode/;
 use Session::Token;
 
 # -------------------------------------
@@ -84,6 +86,17 @@ my (@subs_man,@subs_all);
 for(keys %subs_fields) {
     push @subs_man, $_     if($subs_fields{$_}->{type});
     push @subs_all, $_;
+}
+
+my %send_fields = (
+    hFrom       => { type => 1, html => 1 },
+    hSubject    => { type => 1, html => 1 },
+);
+
+my (@send_man,@send_all);
+for(keys %send_fields) {
+    push @send_man, $_     if($send_fields{$_}->{type});
+    push @send_all, $_;
 }
 
 my $gen = Session::Token->new(length => 24);
@@ -276,9 +289,16 @@ sub PrepareNewsletter {
 
 sub SendNewsletter {
     return  unless AccessUser($LEVEL);
-    my @users = $dbi->GetQuery('hash','GetSubscribers');
 
-    my ($id,$users) = ($cgiparams{articleid},\@users);
+    for(keys %send_fields) {
+           if($send_fields{$_}->{html} == 1) { $cgiparams{$_} = CleanHTML($cgiparams{$_}); }
+        elsif($send_fields{$_}->{html} == 2) { $cgiparams{$_} =  SafeHTML($cgiparams{$_}); }
+    }
+
+    return  if FieldCheck(\@send_all,\@send_man);
+
+    # ensure we have a newsletter
+    return  unless AuthorCheck('GetArticleByID','articleid',$LEVEL);
 
     my %opts = (
         html    => 'mailer/newsletter.html',
@@ -287,36 +307,34 @@ sub SendNewsletter {
         subject => $tvars{data}{hSubject}
     );
 
-    $tvars{gotusers} = scalar(@users);
-
-    # get newsletter details
-    return  unless AuthorCheck('GetArticle','articleid',$LEVEL);
-
+    my @id = CGIArray('LISTED');
+    $tvars{gotusers} = scalar(@id);
     $tvars{mailsent} = 0;
 
-    for my $user (@$users) {
-        $opts{body}     = $tvars{data}{body};
-        $opts{vars}     = \%tvars;
+    for my $id (@id) {
+        my @users = $dbi->GetQuery('hash','CheckSubscriptionKey','',$id);
+        next    unless(@users);
+        my $user = $users[0];
+        $user->{name} = encode('MIME-Q', decode('MIME-Header', $user->{name}));
 
-        $user->{realname} = decode_entities($user->{realname} );
-
-        my $t = localtime;
-        $opts{edate}            = $t->strftime("%a, %d %b %Y %H:%M:%S +0000");
-        $opts{email}            = $user->{email} or next;
-        $opts{recipient_email}  = $user->{email} or next;
-        $opts{ename}            = $user->{realname} || '';
+        $opts{body}             = $tvars{data}{body};
+        $opts{vars}             = \%tvars;
+        $opts{edate}            = formatDate(16);
+        $opts{email}            = $user->{email};
+        $opts{recipient_email}  = $user->{email};
+        $opts{ename}            = $user->{name} || '';
+        $opts{mname}            = $user->{name};
 
         for my $key (qw(from subject body)) {
-            $opts{$key} =~ s/ENAME/$user->{realname}/g;
+            $opts{$key} =~ s/ENAME/$user->{name}/g;
             $opts{$key} =~ s/EMAIL/$user->{email}/g;
-
             $opts{$key} =~ s/\r/ /g;    # a bodge
         }
 
 #use Data::Dumper;
 #LogDebug("opts=".Dumper(\%opts));
         HTMLSend(%opts);
-        $dbi->DoQuery('InsertNewsletterIndex',$cgiparams{articleid},$user->{userid},time());
+        $dbi->DoQuery('InsertNewsletterIndex',$cgiparams{articleid},$user->{subscriptionid},time());
 
         # if sent update index
         $tvars{mailsent}++  if(MailSent());

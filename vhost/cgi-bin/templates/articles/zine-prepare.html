@@ -2,7 +2,8 @@
 
 <form name="EDIT" id="EDIT" method="post" action="[% cgipath %]/pages.cgi">
 <input type="hidden" name="act" value="zine-send" />
-<input type="hidden" name="sectionid" value="[% sectionid %]" />
+<input type="hidden" name="sectionid" value="[% article.data.sectionid %]" />
+<input type="hidden" name="articleid" value="[% article.data.articleid %]" />
 
     <p><a href="[% cgipath %]/pages.cgi?act=zine-admin">view newsletters</a>
     | <a href="[% cgipath %]/pages.cgi?act=zine-subadmin">view subscriptions</a>
