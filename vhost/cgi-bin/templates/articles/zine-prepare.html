@@ -1,0 +1,50 @@
+<h2>Prepare Newsletter</h2>
+
+<form name="EDIT" id="EDIT" method="post" action="[% cgipath %]/pages.cgi">
+<input type="hidden" name="act" value="zine-send" />
+<input type="hidden" name="sectionid" value="[% sectionid %]" />
+
+    <p><a href="[% cgipath %]/pages.cgi?act=zine-admin">view newsletters</a>
+    | <a href="[% cgipath %]/pages.cgi?act=zine-subadmin">view subscriptions</a>
+    </p>
+
+<h3>Selected Newsletter</h3>
+
+<div id="prepare">
+<h2>[% article.data.title %]</h2>
+
+[% block = article.body %]
+[% INCLUDE "articles/arts-block.html" %]
+
+</div>
+
+<h3>Select Subscribers</h3>
+
+<div class="admin">
+<table>
+<tr>
+    <th>Name</th>
+    <th width="100">Email</th>
+    <th width="50"><input type="checkbox" name="top" onclick="togglecheckboxes(this)" checked="checked" /></th>
+</tr>
+
+[% IF data %]
+[% FOREACH item = data %]
+<tr>
+    <td>[% item.name %]</td>
+    <td>[% item.email %]</td>
+    <td><input type="checkbox" name="LISTED" value="[% item.subscriptionid %]" checked="checked" /></td>
+</tr>
+[% END %]
+[% ELSE %]
+<tr><td colspan="4" align="center">Sorry, no subscribers found</td></tr>
+[% END %]
+
+</table>
+
+<p>
+<input type="submit" value="Submit" />
+</p>
+
+</div>
+</form>

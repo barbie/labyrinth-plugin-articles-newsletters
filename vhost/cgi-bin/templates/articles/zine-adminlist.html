@@ -16,6 +16,7 @@
     <th>Title</th>
     <th width="100">Status</th>
     <th width="50">Action</th>
+    <th width="50">Send Newsletter</th>
 </tr>
 
 [% IF data %]
@@ -24,6 +25,7 @@
     <td><a href="/zine/edit?articleid=[% item.articleid %]">[% item.title %]</a></td>
     <td>[% item.publishstate %]</td>
     <td><input type="checkbox" name="LISTED" value="[% item.articleid %]" /></td>
+    <td>[% IF item.publishstate == 'Published' %]<a href="/zine/prep?articleid=[% item.articleid %]">Prepare</a>[% END %]</td>
 </tr>
 [% END %]
 [% ELSE %]

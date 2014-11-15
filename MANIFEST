@@ -21,3 +21,4 @@ vhost/cgi-bin/templates/articles/zine-adminlist.html
 vhost/cgi-bin/templates/articles/zine-adminsubs.html
 vhost/cgi-bin/templates/articles/zine-edit.html
 vhost/cgi-bin/templates/articles/zine-list.html
+vhost/cgi-bin/templates/articles/zine-prepare.html
