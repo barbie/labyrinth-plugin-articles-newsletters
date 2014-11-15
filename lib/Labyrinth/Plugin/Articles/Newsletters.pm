@@ -202,9 +202,23 @@ sub UnSubscribe {
 
 =item AdminSubscription
 
+List current subscriptions.
+
 =item BulkSubscription
 
+Add bulk email subscriptions.
+
 =item DeleteSubscription
+
+Delete email subscriptions.
+
+=item PrepareNewsletter
+
+Prepares the selected newseletter and subscriber list.
+
+=item SendNewsletter
+
+Sends out the selected newseletter to the selected subscriber list.
 
 =back
 
@@ -252,6 +266,12 @@ sub DeleteSubscription {
     
     my @ids = CGIArray('LISTED');
     $dbi->DoQuery('RemoveSubscription',$_)  for(@ids);
+}
+
+sub PrepareNewsletter {
+    return  unless AccessUser($LEVEL);
+    my @emails = $dbi->GetQuery('hash','GetSubscribers');
+    $tvars{data} = \@emails   if(@emails);
 }
 
 sub SendNewsletter {
