@@ -8,13 +8,29 @@
     | <a href="[% cgipath %]/pages.cgi?act=zine-subadmin">view subscriptions</a>
     </p>
 
+<h3>Email Headers</h3>
+
+<div>
+<table>
+<tr><th>From:</th><td><input type="text" name="hFrom" id="hFrom" value="[% hFrom %]" /></td></tr>
+<tr><th>Subject:</th><td><input type="text" name="hSubject" id="hSubject" value="[% article.data.title %]" /></td></tr>
+</table>
+</div>
+
 <h3>Selected Newsletter</h3>
 
 <div id="prepare">
+
+<div id="showbutton"><input type="button" onclick="showit('newsletter')" value="Show Newsletter" /></div>
+
+<div id="newsletter">
+<div id="hidebutton"><input type="button" onclick="hideit('newsletter')" value="Hide Newsletter" /></div>
+
 <h2>[% article.data.title %]</h2>
 
 [% block = article.body %]
 [% INCLUDE "articles/arts-block.html" %]
+</div>
 
 </div>
 
@@ -43,7 +59,7 @@
 </table>
 
 <p>
-<input type="submit" value="Submit" />
+<input type="submit" value="Send Newsletter" />
 </p>
 
 </div>
