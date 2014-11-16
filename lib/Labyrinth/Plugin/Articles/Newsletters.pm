@@ -301,6 +301,7 @@ sub SendNewsletter {
     return  unless AuthorCheck('GetArticleByID','articleid',$LEVEL);
 
     my %opts = (
+        text    => 'mailer/newsletter.txt',
         html    => 'mailer/newsletter.html',
         nowrap  => 1,
         from    => $tvars{data}{hFrom},

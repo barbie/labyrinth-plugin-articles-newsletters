@@ -26,5 +26,6 @@ vhost/cgi-bin/templates/articles/zine-prepare.html
 vhost/cgi-bin/templates/articles/zine-sent.html
 vhost/cgi-bin/templates/mailer/newsletter.eml
 vhost/cgi-bin/templates/mailer/newsletter.html
+vhost/cgi-bin/templates/mailer/newsletter.txt
 vhost/html/css/newsletter.css
 vhost/html/js/newsletter-admin.js
