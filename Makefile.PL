@@ -15,8 +15,11 @@ WriteMakefile(
     PREREQ_PM           => {
 
         # prereqs
-        'Labyrinth'                 => '5.27',
+        'Encode'                    => '2.49',
+        'Encode::MIME::Header'      => '2.13',
+        'Labyrinth'                 => '5.28',
         'Labyrinth::Plugin::Core'   => '5.18',
+        'Session::Token'            => '1.008',
 
         # build/test prereqs
         'IO::File'                  => '0',

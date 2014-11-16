@@ -11,8 +11,11 @@ installdirs:                site
 
 requires:
   perl:                     5.006
-  Labyrinth:                5.27
+  Encode:                   2.49
+  Encode::MIME::Header:     2.13
+  Labyrinth:                5.28
   Labyrinth::Plugin::Core:  5.18
+  Session::Token:           1.008
 recommends:
   Test::CPAN::Meta:         0
   Test::CPAN::Meta::JSON:   0
