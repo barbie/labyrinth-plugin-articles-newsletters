@@ -17,5 +17,3 @@ CREATE TABLE `ixsubscriptions` (
   KEY (`articleid`),
   KEY (`subscriptionid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
-
-
